@@ -30,7 +30,7 @@ public:
     EnableImage( colorFormat, Width, Height );
 
     // 顔の検出を有効にする
-    EnableFaceLocation();
+    EnableFaceLocation();   // 追加
   }
 
   // 新しいフレーム
@@ -39,12 +39,12 @@ public:
     try {
       // フレームを取得する
       auto colorFrame = QueryImage( PXCImage::IMAGE_TYPE_COLOR );
-      auto faceFrame = QueryFace();
+      auto faceFrame = QueryFace();               // 追加 
 
       // 取得したデータを表示する
       cv::Mat colorImage( Height, Width, CV_8UC4 );
-      showColorFrame( colorImage, colorFrame );
-      showFaceDetection( colorImage, faceFrame );
+      getColorData( colorImage, colorFrame );
+      drawFaceDetection( colorImage, faceFrame ); // 追加
       
       // 画像を左右反転する
       //cv::flip( colorImage, colorImage, 1 );
@@ -61,7 +61,7 @@ public:
   }
 
   // Colorデータを表示する
-  void showColorFrame( cv::Mat& colorImage, PXCImage* colorFrame )
+  void getColorData( cv::Mat& colorImage, PXCImage* colorFrame )
   {
     // Colorデータを取得する
     PXCImage::ImageData data = { 0 };
@@ -77,8 +77,8 @@ public:
     colorFrame->ReleaseAccess( &data );
   }
 
-  // 検出した顔の位置を表示する
-  void showFaceDetection( cv::Mat& colorImage, PXCFaceAnalysis* faceFrame )
+  // 検出した顔の位置を表示する(追加)
+  void drawFaceDetection( cv::Mat& colorImage, PXCFaceAnalysis* faceFrame )
   {
     auto detector = faceFrame->DynamicCast<PXCFaceAnalysis::Detection>();
     for ( int i = 0 ;; ++i ) {
@@ -97,7 +97,7 @@ public:
       // 顔の位置を描画する
       cv::rectangle( colorImage,
         cv::Rect( data.rectangle.x, data.rectangle.y, data.rectangle.w, data.rectangle.h ),
-        cv::Scalar( 255, 0, 0 ) );
+        cv::Scalar( 255, 0, 0 ), 3 );
     }
   }
 };

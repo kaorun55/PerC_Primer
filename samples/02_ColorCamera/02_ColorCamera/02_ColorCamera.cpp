@@ -39,14 +39,14 @@ public:
       // フレームを取得する
       auto colorFrame = QueryImage( PXCImage::IMAGE_TYPE_COLOR );
 
-      // 取得したデータを表示する
+      // データを取得する
       cv::Mat colorImage( Height, Width, CV_8UC4 );
-      showColorFrame( colorImage, colorFrame );
+      getColorData( colorImage, colorFrame );
 
       // 画像を左右反転する
       //cv::flip( colorImage, colorImage, 1 );
 
-      // 表示
+      // 表示する
       cv::imshow( "Color Camera", colorImage );
     }
     catch ( std::exception& ex ) {
@@ -57,8 +57,8 @@ public:
     return key != 'q';
   }
 
-  // 6. Colorデータを表示する
-  void showColorFrame( cv::Mat& colorImage, PXCImage* colorFrame )
+  // 6. Colorデータを取得する
+  void getColorData( cv::Mat& colorImage, PXCImage* colorFrame )
   {
     // Colorデータを取得する
     PXCImage::ImageData data = { 0 };
