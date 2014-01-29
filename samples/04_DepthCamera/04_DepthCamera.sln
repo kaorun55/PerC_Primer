@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_DepthCamera", "04_DepthCamera\04_DepthCamera.vcxproj", "{7F64A419-B5F5-4234-B321-814B7E251607}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{273A7DC2-C008-4CDD-A493-78FD39D39BF1}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_FingerDetection", "05_FingerDetection\05_FingerDetection.vcxproj", "{0DD11806-EA92-4A66-8290-13220FE2D2B7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F64A419-B5F5-4234-B321-814B7E251607}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7F64A419-B5F5-4234-B321-814B7E251607}.Debug|Win32.Build.0 = Debug|Win32
+		{7F64A419-B5F5-4234-B321-814B7E251607}.Release|Win32.ActiveCfg = Release|Win32
+		{7F64A419-B5F5-4234-B321-814B7E251607}.Release|Win32.Build.0 = Release|Win32
+		{0DD11806-EA92-4A66-8290-13220FE2D2B7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DD11806-EA92-4A66-8290-13220FE2D2B7}.Debug|Win32.Build.0 = Debug|Win32
+		{0DD11806-EA92-4A66-8290-13220FE2D2B7}.Release|Win32.ActiveCfg = Release|Win32
+		{0DD11806-EA92-4A66-8290-13220FE2D2B7}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
