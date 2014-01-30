@@ -1,4 +1,4 @@
-// 05_FingerDetection.cpp : ƒRƒ“ƒ\[ƒ‹ ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒGƒ“ƒgƒŠ ƒ|ƒCƒ“ƒg‚ğ’è‹`‚µ‚Ü‚·B
+ï»¿// 05_FingerDetection.cpp : ã‚³ãƒ³ã‚½ãƒ¼ãƒ« ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¨ãƒ³ãƒˆãƒª ãƒã‚¤ãƒ³ãƒˆã‚’å®šç¾©ã—ã¾ã™ã€‚
 //
 
 #include "stdafx.h"
@@ -10,35 +10,48 @@
 #include <opencv2\opencv.hpp>
 
 class Pipeline: public UtilPipeline {
+protected:
+
+  static const int Width = 640;
+  static const int Height = 480;
+  //static const int Width = 1280;
+  //static const int Height = 720;
+
+  static const int DEPTH_WIDTH = 320;
+  static const int DEPTH_HEIGHT = 240;
+
+  PXCImage::ColorFormat colorFormat;
 
 public:
 
+  // 1.ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãƒ¼
   Pipeline(void)
     : UtilPipeline()
   {
-    // •K—v‚Èƒf[ƒ^‚ğ—LŒø‚É‚·‚é
+    // å¿…è¦ãªãƒ‡ãƒ¼ã‚¿ã‚’æœ‰åŠ¹ã«ã™ã‚‹
     EnableGesture();
     EnableImage(PXCImage::COLOR_FORMAT_RGB32, Width, Height);
   }
 
-  // V‚µ‚¢ƒtƒŒ[ƒ€
+  // 2. æ–°ã—ã„ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ›´æ–°ã‚¤ãƒ™ãƒ³ãƒˆ
   virtual bool OnNewFrame(void)
   {
     try {
-      // ƒtƒŒ[ƒ€‚ğæ“¾‚·‚é
+      // ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’å–å¾—ã™ã‚‹
       auto colorFrame = QueryImage( PXCImage::IMAGE_TYPE_COLOR );
-      auto depthFrame = QueryImage(PXCImage::IMAGE_TYPE_DEPTH);
+      auto depthFrame = QueryImage( PXCImage::IMAGE_TYPE_DEPTH );
       auto gestureFrame = QueryGesture();
 
-      // æ“¾‚µ‚½ƒf[ƒ^‚ğ•\¦‚·‚é
+      // ãƒ•ãƒ¬ãƒ¼ãƒ ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
       cv::Mat colorImage( Height, Width, CV_8UC4 );
-      cv::Mat depthImage( DEPTH_HEIGHT, DEPTH_WIDTH, CV_8U );
-      showColorFrame( colorImage, colorFrame );
-      showDepthFrame( depthImage, depthFrame );
-      showGestureFrame( colorImage, gestureFrame, colorFrame, depthFrame );
+      cv::Mat depthImage;
+      getColorData( colorImage, colorFrame );
+      getDepthData( depthImage, depthFrame );
+      getGestureData( colorImage, gestureFrame, colorFrame, depthFrame );
 
-      // •\¦
-      cv::imshow( "Intel Perceptual Computing SDK", colorImage );
+      // è¡¨ç¤º
+      cv::imshow( "Color Camera", colorImage );
+      cv::imshow( "Depth Camera", depthImage );
     }
     catch ( std::exception& ex ) {
       std::cout << ex.what() << std::endl;
@@ -48,151 +61,135 @@ public:
     return key != 'q';
   }
 
-  // Colorƒf[ƒ^‚ğ•\¦‚·‚é
-  void showColorFrame( cv::Mat& colorImage, PXCImage* colorFrame )
+  // Colorã‚«ãƒ¡ãƒ©ã®ç”»åƒã‚’å–å¾—ã™ã‚‹
+  void getColorData( cv::Mat& colorImage, PXCImage* colorFrame )
   {
-    // Colorƒf[ƒ^‚ğæ“¾‚·‚é
+    // Colorãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     PXCImage::ImageData data = { 0 };
-    auto sts = colorFrame->AcquireAccess( PXCImage::ACCESS_READ, PXCImage::COLOR_FORMAT_RGB32, &data );
+    auto sts = colorFrame->AcquireAccess( PXCImage::ACCESS_READ,
+                                          PXCImage::COLOR_FORMAT_RGB32, &data );
     if ( sts < PXC_STATUS_NO_ERROR ) {
       return;
     }
 
-    // RGBƒf[ƒ^‚ğæ“¾‚·‚é
+    // RGBãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     memcpy( colorImage.data, data.planes[0], data.pitches[0] * Height );
 
-    // Colorƒf[ƒ^‚ğ‰ğ•ú‚·‚é
+    // Colorãƒ‡ãƒ¼ã‚¿ã‚’è§£æ”¾ã™ã‚‹
     colorFrame->ReleaseAccess( &data );
   }
 
-  // Depthƒf[ƒ^‚ğ•\¦‚·‚é
-  void showDepthFrame( cv::Mat& depthImage, PXCImage* depthFrame )
+  // Depthã‚«ãƒ¡ãƒ©ã®ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
+  void getDepthData( cv::Mat& depthImage, PXCImage* depthFrame )
   {
-    // Depthƒf[ƒ^‚ğæ“¾‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     PXCImage::ImageData data = { 0 };
-    auto sts = depthFrame->AcquireAccess( PXCImage::ACCESS_READ, PXCImage::COLOR_FORMAT_DEPTH, &data );
+    auto sts = depthFrame->AcquireAccess( PXCImage::ACCESS_READ,
+                                          PXCImage::COLOR_FORMAT_RGB32, &data );
     if ( sts < PXC_STATUS_NO_ERROR ) {
       return;
     }
 
-    // Depthƒf[ƒ^‚ğ‰Â‹‰»‚·‚é
-    ushort* srcDepth = (ushort*)data.planes[0];
-    uchar* dstDepth = (uchar*)depthImage.data;
-    for ( int i = 0; i < DEPTH_WIDTH * DEPTH_HEIGHT; ++i ) {
-      if ( (150 <= srcDepth[i]) && (srcDepth[i] < 800) ) {
-        dstDepth[i] = srcDepth[i] * 0xFF / 1000;
-      }
-      else {
-        dstDepth[i] = 0xFF;
-      }
-    }
+    // 32bitã®RGBç”»åƒã‚’ä½œæˆã™ã‚‹
+    depthImage = cv::Mat( DEPTH_HEIGHT, DEPTH_WIDTH, CV_8UC4 );
 
-    // Depthƒf[ƒ^‚ğ‰ğ•ú‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’å¯è¦–åŒ–ã™ã‚‹
+    memcpy( depthImage.data, data.planes[0], data.pitches[0] * DEPTH_HEIGHT );
+
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’è§£æ”¾ã™ã‚‹
     depthFrame->ReleaseAccess( &data );
   }
 
-  // ƒWƒFƒXƒ`ƒƒ[ƒtƒŒ[ƒ€‚ğ•\¦‚·‚é
-  void showGestureFrame( cv::Mat& colorImage, PXCGesture* gestureFrame, PXCImage* colorFrame, PXCImage* depthFrame )
+  // 3. ã‚¸ã‚§ã‚¹ãƒãƒ£ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
+  void getGestureData( cv::Mat& colorImage, PXCGesture* gestureFrame,
+                       PXCImage* colorFrame, PXCImage* depthFrame )
   {
-    showHand( colorImage, gestureFrame, colorFrame, depthFrame, PXCGesture::GeoNode::LABEL_BODY_HAND_PRIMARY );
-    showHand( colorImage, gestureFrame, colorFrame, depthFrame, PXCGesture::GeoNode::LABEL_BODY_HAND_SECONDARY );
+    getHandPosition( colorImage, gestureFrame, colorFrame, depthFrame,
+                     PXCGesture::GeoNode::LABEL_BODY_HAND_PRIMARY );
+    getHandPosition( colorImage, gestureFrame, colorFrame, depthFrame,
+                     PXCGesture::GeoNode::LABEL_BODY_HAND_SECONDARY );
   }
 
-  // è‚ÌˆÊ’u‚ğ•\¦‚·‚é
-  void showHand( cv::Mat& colorImage, PXCGesture* gestureFrame, PXCImage* colorFrame, PXCImage* depthFrame, PXCGesture::GeoNode::Label hand )
+  // 4. æ‰‹ã®ä½ç½®ã‚’å–å¾—ã™ã‚‹
+  void getHandPosition( cv::Mat& colorImage, PXCGesture* gestureFrame, PXCImage* colorFrame,
+                        PXCImage* depthFrame, PXCGesture::GeoNode::Label hand )
   {
-    // è‚ÌˆÊ’u
-    showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 0, 0 ), hand );
+    // æ‰‹ã®ä½ç½®
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 0, 0 ), hand );
 
-    // ‹ï‘Ì“I‚Èw‚ÌˆÊ’u
-    showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 255, 0 ),
+#if 1
+    // å…·ä½“çš„ãªæŒ‡ã®ä½ç½®
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 255, 0 ),
       hand | PXCGesture::GeoNode::LABEL_FINGER_THUMB );
-    showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 0, 255 ),
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 0, 255 ),
       hand | PXCGesture::GeoNode::LABEL_FINGER_INDEX );
-    showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 255, 0 ),
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 255, 0 ),
       hand | PXCGesture::GeoNode::LABEL_FINGER_MIDDLE );
-    showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 0, 255 ),
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 0, 255 ),
       hand | PXCGesture::GeoNode::LABEL_FINGER_RING );
-    showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 255, 255 ),
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 255, 255 ),
       hand | PXCGesture::GeoNode::LABEL_FINGER_PINKY );
-
-    // ’ŠÛ“I‚Èw‚ÌˆÊ’u
-    //showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 255, 0 ),
-    //  hand | PXCGesture::GeoNode::LABEL_HAND_FINGERTIP );
-    //showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 0, 255 ),
-    //  hand | PXCGesture::GeoNode::LABEL_HAND_UPPER );
-    //showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 255, 0 ),
-    //  hand | PXCGesture::GeoNode::LABEL_HAND_MIDDLE );
-    //showLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 0, 255 ),
-    //  hand | PXCGesture::GeoNode::LABEL_HAND_LOWER );
+#else
+    // æŠ½è±¡çš„ãªæŒ‡ã®ä½ç½®
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 255, 0 ),
+      hand | PXCGesture::GeoNode::LABEL_HAND_FINGERTIP );
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 0, 255 ),
+      hand | PXCGesture::GeoNode::LABEL_HAND_UPPER );
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 255, 0 ),
+      hand | PXCGesture::GeoNode::LABEL_HAND_MIDDLE );
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 0, 255 ),
+      hand | PXCGesture::GeoNode::LABEL_HAND_LOWER );
+#endif
   }
 
-  // w‚ÌˆÊ’u‚ğ•\¦‚·‚é
-  void showLabel( cv::Mat& colorImage, PXCGesture* gestureFrame, PXCImage* colorFrame, PXCImage* depthFrame,
-    cv::Scalar color, PXCGesture::GeoNode::Label label )
+  // æŒ‡ã®ä½ç½®ã‚’å–å¾—ã™ã‚‹
+  void getLabel( cv::Mat& colorImage, PXCGesture* gestureFrame, PXCImage* colorFrame,
+                 PXCImage* depthFrame, cv::Scalar color, PXCGesture::GeoNode::Label label )
   {
-    // ƒWƒFƒXƒ`ƒƒ[ƒf[ƒ^‚ğæ“¾‚·‚é
+    // ã‚¸ã‚§ã‚¹ãƒãƒ£ãƒ¼ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     PXCGesture::GeoNode nodeData = { 0 };
     auto sts = gestureFrame->QueryNodeData( 0 , label, &nodeData );
     if ( sts < PXC_STATUS_NO_ERROR) {
       return;
     }
 
-    // Depthƒf[ƒ^‚ğæ“¾‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     PXCImage::ImageData depthData = { 0 };
     sts = depthFrame->AcquireAccess( PXCImage::ACCESS_READ, &depthData );
     if ( sts < PXC_STATUS_NO_ERROR ) {
       return;
     }
 
-    // X,YÀ•W‚ğ‰æ–Ê‚ÌÀ•W‚É•ÏŠ·‚·‚é
-    PXCImage::ImageInfo rgbInfo = { 0, 0, 0 };
+    // X,Yåº§æ¨™ã‚’ç”»é¢ã®åº§æ¨™ã«å¤‰æ›ã™ã‚‹
+    PXCImage::ImageInfo colorInfo = { 0, 0, 0 };
     PXCImage::ImageInfo depthInfo = { 0, 0, 0 };
-    colorFrame->QueryInfo( &rgbInfo );
+    colorFrame->QueryInfo( &colorInfo );
     depthFrame->QueryInfo( &depthInfo );
     auto x = nodeData.positionImage.x;
     auto y = nodeData.positionImage.y;
-    MapXY( x, y, &depthData, &depthInfo, &rgbInfo );
+    MapXY( x, y, &depthData, &depthInfo, &colorInfo );
 
-    // ‰æ–Êã‚ÉˆÊ’u‚É“_‚ğ•`‰æ‚·‚é
-    cv::circle( colorImage, cv::Point( x, y ), 5, color, -1 );
+    // ç”»é¢ä¸Šã«ä½ç½®ã«ç‚¹ã‚’æç”»ã™ã‚‹
+    cv::circle( colorImage, cv::Point( x, y ), 10, color, -1 );
 
-    // Depthƒf[ƒ^‚ğ‰ğ•ú‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’è§£æ”¾ã™ã‚‹
     depthFrame->ReleaseAccess( &depthData );
   }
 
-  // 3ŸŒ³À•W‚ğ2ŸŒ³À•W‚É•ÏŠ·‚·‚é
-  static void MapXY(float &x, float &y, PXCImage::ImageData *data, PXCImage::ImageInfo *depthInfo, PXCImage::ImageInfo *rgbInfo) {
-    if (data->planes[2]) {
-      if (x>=0 && y>=0 &&  x<depthInfo->width && y<depthInfo->height) {
-        int index=(int)(((int)y)*depthInfo->width+x);
-        int index2=2*index;
+  // 3æ¬¡å…ƒåº§æ¨™ã‚’2æ¬¡å…ƒåº§æ¨™ã«å¤‰æ›ã™ã‚‹
+  // http://software.intel.com/sites/landingpage/perceptual_computing/documentation/html/
+  static void MapXY( float &x, float &y, PXCImage::ImageData *depthData,
+                     PXCImage::ImageInfo *depthInfo, PXCImage::ImageInfo *colorInfo)
+  {
+    int index = (int)((((int)y) * depthInfo->width) + x) * 2;
 
-        x=((float*)data->planes[2])[index2]*rgbInfo->width;
-        y=((float*)data->planes[2])[index2+1]*rgbInfo->height;
+    float* uvmap = (float*)depthData->planes[2];
+    x = uvmap[index] * colorInfo->width;
+    y = uvmap[index + 1] * colorInfo->height;
 
-        // XÀ•W‚ğ”½“]‚·‚é
-        //x = abs(x - rgbInfo->width);
-      }
-    } else {
-      if (depthInfo->width>0 && depthInfo->height>0) {
-        x=x/depthInfo->width*rgbInfo->width;
-        y=y/depthInfo->height*rgbInfo->height;
-      }
-    }
+    // Xåº§æ¨™ã‚’åè»¢ã™ã‚‹
+    //x = abs(x - rgbInfo->width);
   }
-
-protected:
-
-  //static const int Width = 640;
-  //static const int Height = 480;
-  static const int Width = 1280;
-  static const int Height = 720;
-
-  static const int DEPTH_WIDTH = 320;
-  static const int DEPTH_HEIGHT = 240;
-
-  PXCImage::ColorFormat colorFormat;
 };
 
 int _tmain(int argc, _TCHAR* argv[])
