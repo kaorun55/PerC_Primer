@@ -1,57 +1,57 @@
-// 04_DepthCamera.cpp : ƒRƒ“ƒ\[ƒ‹ ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒGƒ“ƒgƒŠ ƒ|ƒCƒ“ƒg‚ğ’è‹`‚µ‚Ü‚·B
+ï»¿// 04_DepthCamera.cpp : ã‚³ãƒ³ã‚½ãƒ¼ãƒ« ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¨ãƒ³ãƒˆãƒª ãƒã‚¤ãƒ³ãƒˆã‚’å®šç¾©ã—ã¾ã™ã€‚
 //
 
 #include "stdafx.h"
 
 #include <iostream>
 
-// ƒwƒbƒ_[ƒtƒ@ƒCƒ‹
+// ãƒ˜ãƒƒãƒ€ãƒ¼ãƒ•ã‚¡ã‚¤ãƒ«
 #include "util_pipeline.h"
 #include <opencv2\opencv.hpp>
 
-// UtilPipeline‚©‚çŒp³‚µ‚½ƒNƒ‰ƒX
+// UtilPipelineã‹ã‚‰ç¶™æ‰¿ã—ãŸã‚¯ãƒ©ã‚¹
 class Pipeline: public UtilPipeline {
 protected:
 
-  // 1. ’è”A•Ï”‚ÌéŒ¾ 
+  // 1. å®šæ•°ã€å¤‰æ•°ã®å®£è¨€ 
   //static const int Width = 640;
   //static const int Height = 480;
   static const int Width = 1280;
   static const int Height = 720;
 
-  // DepthƒJƒƒ‰‚Ì‰ğ‘œ“x
-  static const int DEPTH_WIDTH = 320;   // ’Ç‰Á
-  static const int DEPTH_HEIGHT = 240;  // ’Ç‰Á
+  // Depthã‚«ãƒ¡ãƒ©ã®è§£åƒåº¦
+  static const int DEPTH_WIDTH = 320;   // è¿½åŠ 
+  static const int DEPTH_HEIGHT = 240;  // è¿½åŠ 
 
   PXCImage::ColorFormat colorFormat;
 
 public:
 
-  // 2. ƒRƒ“ƒXƒgƒ‰ƒNƒ^[
+  // 2. ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãƒ¼
   Pipeline(void)
     : UtilPipeline()
     , colorFormat( PXCImage::COLOR_FORMAT_RGB32 )
   {
-    // •K—v‚Èƒf[ƒ^‚ğ—LŒø‚É‚·‚é
+    // å¿…è¦ãªãƒ‡ãƒ¼ã‚¿ã‚’æœ‰åŠ¹ã«ã™ã‚‹
     EnableImage( colorFormat, Width, Height);
     EnableImage( PXCImage::COLOR_FORMAT_DEPTH, DEPTH_WIDTH, DEPTH_HEIGHT);
   }
 
-  // 3. V‚µ‚¢ƒtƒŒ[ƒ€‚ÌXVƒCƒxƒ“ƒg
+  // 3. æ–°ã—ã„ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ›´æ–°ã‚¤ãƒ™ãƒ³ãƒˆ
   virtual bool OnNewFrame(void)
   {
     try {
-      // ƒtƒŒ[ƒ€‚ğæ“¾‚·‚é
+      // ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’å–å¾—ã™ã‚‹
       auto colorFrame = QueryImage( PXCImage::IMAGE_TYPE_COLOR );
       auto depthFrame = QueryImage( PXCImage::IMAGE_TYPE_DEPTH );
 
-      // ƒtƒŒ[ƒ€ƒf[ƒ^‚ğæ“¾‚·‚é
+      // ãƒ•ãƒ¬ãƒ¼ãƒ ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
       cv::Mat colorImage( Height, Width, CV_8UC4 );
       cv::Mat depthImage;
       getColorData( colorImage, colorFrame );
       getDepthData( depthImage, depthFrame );
       
-      // •\¦
+      // è¡¨ç¤º
       cv::imshow( "Color Camera", colorImage );
       cv::imshow( "Depth Camera", depthImage );
     }
@@ -63,10 +63,10 @@ public:
     return key != 'q';
   }
 
-  // Colorƒf[ƒ^‚ğæ“¾‚·‚é
+  // Colorãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
   void getColorData( cv::Mat& colorImage, PXCImage* colorFrame )
   {
-    // Colorƒf[ƒ^‚ğæ“¾‚·‚é
+    // Colorãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     PXCImage::ImageData data = { 0 };
     auto sts = colorFrame->AcquireAccess( PXCImage::ACCESS_READ,
                                           colorFormat, &data );
@@ -74,18 +74,18 @@ public:
       return;
     }
 
-    // Colorƒf[ƒ^‚ğ‰Â‹‰»‚·‚é
+    // Colorãƒ‡ãƒ¼ã‚¿ã‚’å¯è¦–åŒ–ã™ã‚‹
     memcpy( colorImage.data, data.planes[0], data.pitches[0] * Height );
 
-    // Colorƒf[ƒ^‚ğ‰ğ•ú‚·‚é
+    // Colorãƒ‡ãƒ¼ã‚¿ã‚’è§£æ”¾ã™ã‚‹
     colorFrame->ReleaseAccess( &data );
   }
 
-  // 4. DepthƒJƒƒ‰‚Ìƒf[ƒ^‚ğæ“¾‚·‚é
+  // 4. Depthã‚«ãƒ¡ãƒ©ã®ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
   void getDepthData( cv::Mat& depthImage, PXCImage* depthFrame )
   {
 #if 0
-    // Depthƒf[ƒ^‚ğæ“¾‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     PXCImage::ImageData data = { 0 };
     auto sts = depthFrame->AcquireAccess( PXCImage::ACCESS_READ,
                                           PXCImage::COLOR_FORMAT_DEPTH, &data );
@@ -93,14 +93,14 @@ public:
       return;
     }
 
-    // 8bit‚ÌGray‰æ‘œ‚ğì¬‚·‚é
+    // 8bitã®Grayç”»åƒã‚’ä½œæˆã™ã‚‹
     depthImage = cv::Mat( DEPTH_HEIGHT, DEPTH_WIDTH, CV_8U );
 
-    // Depthƒf[ƒ^‚ğ‰Â‹‰»‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’å¯è¦–åŒ–ã™ã‚‹
     ushort* srcDepth = (ushort*)data.planes[0];
     uchar* dstDepth = (uchar*)depthImage.data;
     for ( int i = 0; i < (DEPTH_WIDTH * DEPTH_HEIGHT); ++i ) {
-      // ˆê’è‚Ì‹——£‚Ì‚İ—LŒø‚É‚·‚é
+      // ä¸€å®šã®è·é›¢ã®ã¿æœ‰åŠ¹ã«ã™ã‚‹
       if ( (150 <= srcDepth[i]) && (srcDepth[i] < 800) ) {
         dstDepth[i] = srcDepth[i] * 0xFF / 1000;
       }
@@ -109,10 +109,10 @@ public:
       }
     }
 
-    // Depthƒf[ƒ^‚ğ‰ğ•ú‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’è§£æ”¾ã™ã‚‹
     depthFrame->ReleaseAccess( &data );
 #else
-    // Depthƒf[ƒ^‚ğæ“¾‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     PXCImage::ImageData data = { 0 };
     auto sts = depthFrame->AcquireAccess( PXCImage::ACCESS_READ,
                                           PXCImage::COLOR_FORMAT_RGB32, &data );
@@ -120,13 +120,13 @@ public:
       return;
     }
 
-    // 32bit‚ÌRGB‰æ‘œ‚ğì¬‚·‚é
+    // 32bitã®RGBç”»åƒã‚’ä½œæˆã™ã‚‹
     depthImage = cv::Mat( DEPTH_HEIGHT, DEPTH_WIDTH, CV_8UC4 );
 
-    // Depthƒf[ƒ^‚ğ‰Â‹‰»‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’å¯è¦–åŒ–ã™ã‚‹
     memcpy( depthImage.data, data.planes[0], data.pitches[0] * DEPTH_HEIGHT );
 
-    // Depthƒf[ƒ^‚ğ‰ğ•ú‚·‚é
+    // Depthãƒ‡ãƒ¼ã‚¿ã‚’è§£æ”¾ã™ã‚‹
     depthFrame->ReleaseAccess( &data );
 #endif
   }
