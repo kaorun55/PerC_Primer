@@ -108,6 +108,11 @@ public:
                      PXCGesture::GeoNode::LABEL_BODY_HAND_PRIMARY );
     getHandPosition( colorImage, gestureFrame, colorFrame, depthFrame,
                      PXCGesture::GeoNode::LABEL_BODY_HAND_SECONDARY );
+
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame,
+      cv::Scalar( 128, 128, 128 ), PXCGesture::GeoNode::LABEL_BODY_ELBOW_PRIMARY );
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame,
+      cv::Scalar( 128, 128, 128 ), PXCGesture::GeoNode::LABEL_BODY_ELBOW_SECONDARY );
   }
 
   // 4. 手の位置を取得する
@@ -135,14 +140,14 @@ public:
       hand | PXCGesture::GeoNode::LABEL_HAND_FINGERTIP );
     getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 0, 255 ),
       hand | PXCGesture::GeoNode::LABEL_HAND_UPPER );
-    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 255, 0 ),
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 255, 255 ),
       hand | PXCGesture::GeoNode::LABEL_HAND_MIDDLE );
-    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 255, 0, 255 ),
+    getLabel( colorImage, gestureFrame, colorFrame, depthFrame, cv::Scalar( 0, 0, 0 ),
       hand | PXCGesture::GeoNode::LABEL_HAND_LOWER );
 #endif
   }
 
-  // 指の位置を取得する
+  // 5.指の位置を取得する
   void getLabel( cv::Mat& colorImage, PXCGesture* gestureFrame, PXCImage* colorFrame,
                  PXCImage* depthFrame, cv::Scalar color, PXCGesture::GeoNode::Label label )
   {
@@ -176,20 +181,20 @@ public:
     depthFrame->ReleaseAccess( &depthData );
   }
 
-  // 3次元座標を2次元座標に変換する
-  // http://software.intel.com/sites/landingpage/perceptual_computing/documentation/html/
-  static void MapXY( float &x, float &y, PXCImage::ImageData *depthData,
-                     PXCImage::ImageInfo *depthInfo, PXCImage::ImageInfo *colorInfo)
-  {
-    int index = (int)((((int)y) * depthInfo->width) + x) * 2;
+// 6.3次元座標を2次元座標に変換する
+// http://software.intel.com/sites/landingpage/perceptual_computing/documentation/html/
+static void MapXY( float &x, float &y, PXCImage::ImageData *depthData,
+                    PXCImage::ImageInfo *depthInfo, PXCImage::ImageInfo *colorInfo)
+{
+  int index = (int)((((int)y) * depthInfo->width) + x) * 2;
 
-    float* uvmap = (float*)depthData->planes[2];
-    x = uvmap[index] * colorInfo->width;
-    y = uvmap[index + 1] * colorInfo->height;
+  float* uvmap = (float*)depthData->planes[2];
+  x = uvmap[index] * colorInfo->width;
+  y = uvmap[index + 1] * colorInfo->height;
 
-    // X座標を反転する
-    //x = abs(x - rgbInfo->width);
-  }
+  // X座標を反転する
+  //x = abs(x - rgbInfo->width);
+}
 };
 
 int _tmain(int argc, _TCHAR* argv[])
