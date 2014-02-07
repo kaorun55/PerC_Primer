@@ -1,4 +1,4 @@
-// 06_VoiceDictation.cpp : ƒRƒ“ƒ\[ƒ‹ ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒGƒ“ƒgƒŠ ƒ|ƒCƒ“ƒg‚ð’è‹`‚µ‚Ü‚·B
+ï»¿// 06_VoiceDictation.cpp : ã‚³ãƒ³ã‚½ãƒ¼ãƒ« ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¨ãƒ³ãƒˆãƒª ãƒã‚¤ãƒ³ãƒˆã‚’å®šç¾©ã—ã¾ã™ã€‚
 //
 
 #include "stdafx.h"
@@ -11,18 +11,18 @@
 class Pipeline: public UtilPipeline {
 public:
 
-  // 1.ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+  // 1.ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
   Pipeline(void)
     : UtilPipeline()
   {
-    // •K—v‚Èƒf[ƒ^‚ð—LŒø‚É‚·‚é
+    // å¿…è¦ãªãƒ‡ãƒ¼ã‚¿ã‚’æœ‰åŠ¹ã«ã™ã‚‹
     EnableVoiceRecognition();
   }
 
-  // 2.‰¹º”FŽ¯‚ÌƒZƒbƒgƒAƒbƒv‚ðs‚¤
+  // 2.éŸ³å£°ã‚¨ãƒ³ã‚¸ãƒ³ã®ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã‚’è¡Œã†
   virtual void  OnVoiceRecognitionSetup(PXCVoiceRecognition::ProfileInfo * finfo)
   {
-    // “ú–{Œê‚Ì‰¹ºƒGƒ“ƒWƒ“‚ð’T‚·
+    // æ—¥æœ¬èªžã®éŸ³å£°ã‚¨ãƒ³ã‚¸ãƒ³ã‚’æŽ¢ã™
     auto voiceRecognition = QueryVoiceRecognition();
     for ( int i = 0; ; ++i ) {
       PXCVoiceRecognition::ProfileInfo pinfo = { 0 };
@@ -33,23 +33,23 @@ public:
 
       if ( pinfo.language == PXCVoiceRecognition::ProfileInfo::LANGUAGE_JP_JAPANESE ) {
         *finfo = pinfo;
-        std::cout << "“ú–{Œê‚Ì‰¹ºƒGƒ“ƒWƒ“‚ðÝ’è‚µ‚Ü‚µ‚½" << std::endl;
+        std::cout << "æ—¥æœ¬èªžã®éŸ³å£°ã‚¨ãƒ³ã‚¸ãƒ³ã‚’è¨­å®šã—ã¾ã—ãŸ" << std::endl;
       }
     }
 
-    std::cout << "‰¹º”FŽ¯‚ðŠJŽn‚µ‚Ü‚·" << std::endl;
+    std::cout << "éŸ³å£°èªè­˜ã‚’é–‹å§‹ã—ã¾ã™" << std::endl;
   }
 
-  // 3.•¶‚ð”FŽ¯‚·‚é‚ÆŒÄ‚Ño‚³‚ê‚é
+  // 3.éŸ³å£°èªè­˜ã•ã‚ŒãŸãƒ†ã‚­ã‚¹ãƒˆã‚’å–å¾—ã™ã‚‹
   virtual void PXCAPI OnRecognized( PXCVoiceRecognition::Recognition *cmd ) {
-    std::wcout << L"”FŽ¯‚µ‚½•¶: " << cmd->dictation << std::endl;
+    std::wcout << L"èªè­˜ã—ãŸæ–‡: " << cmd->dictation << std::endl;
   }
 };
 
 int _tmain(int argc, _TCHAR* argv[])
 {
   try {
-    // 4.wide-charactor‚ð•\Ž¦‚Å‚«‚é‚æ‚¤‚É‚·‚é
+    // 4.wide-charactorã‚’è¡¨ç¤ºã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹
     std::locale::global(std::locale("japanese"));
 
     Pipeline pipeline;
